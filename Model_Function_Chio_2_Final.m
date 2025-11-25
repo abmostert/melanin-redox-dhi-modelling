@@ -1,3 +1,7 @@
+% Copyright (c) 2025 A. Bernardus Mostert
+% Licensed under the MIT License. See the LICENSE file in the repository root.
+
+
 function F = Model_Function_Chio_2_Final(x)
 
 %Variables are: 

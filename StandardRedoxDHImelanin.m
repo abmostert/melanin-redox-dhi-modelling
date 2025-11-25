@@ -1,3 +1,7 @@
+% Copyright (c) 2025 A. Bernardus Mostert
+% Licensed under the MIT License. See the LICENSE file in the repository root.
+
+
 clear all
 close all
 
