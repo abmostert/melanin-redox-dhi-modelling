@@ -1,0 +1,89 @@
+function F = Model_Function_Chio_1_Final(x)
+
+%Variables are: 
+% V - volume of solution in ml
+% Vmin - the initial volume added in ml
+% Vstep - the size of a the volume step in ml
+% Vmax - the final volume added to the solution in ml
+% V0 - the initial volume in ml
+% C - the concentration of the acid/base being added
+% CH2Q0 - The idealised initial concentration of the hydroquinone species before dissociation in Molar
+% CQ0 - The idealised initial concentration of the quinone species before dissociation in Molar
+% H - concentration of hydronium in Molar
+% OH - concentration of hydroxyl ion in Molar
+% Q - concentration of quinone molecule in Molar
+% Q2 - concentration of doubly deprotonated hydroquinone ion in Molar
+% HQ - concentration of deprotonated hydroquinone ion in Molar
+% H2Q - concentration of hydroquinone molecule in Molar
+% SQ - concentration of semiquinone ion in Molar
+% HQI - concentration of protonated quinone imine
+% QI - concentration of deprotonated quinone imine
+% HSQ - concentration of the protonated semiquinone molecule in Molar
+% EQ2SQ - reduction potential for semiquinone to hydroquinone
+% ESQQ - reduction potential for quinone to semiquinone
+% pQ - -log10Q
+% logOH - log10OH
+% logQ - log10Q
+% logQ2 - log10Q2
+% logHQ - log10HQ
+% logH2Q - log10H2Q
+% logSQ- log10SQ
+% logHSQ - log10HSQ
+% pH - pH of the system
+% E - potential of the system in V
+% Kw - water dissociation constant
+% pKw - -log10 Kw
+% Ka1 - 1st dissociation constant for hydroquinone
+% Ka2 - 2nd dissociation constant for hydroquinone
+% Kar - dissociation constant for semiquinone
+
+
+%creating a global set of parameters that will be defined in this m file as
+%well as the function file.
+global V Vmin Vstep Vmax V0 C CH2Q0 CQ0 H OH pH E Kw pKw pQ
+global Q Q2 HQ H2Q SQ HSQ EQ2SQ ESQQ Ka1 Ka2 Kar 
+global logOH logQ logQ2 logHQ logH2Q logSQ logHSQ 
+
+%defining my 3 unknown parameters
+E = x(1) ;
+pH = x(2) ;
+pQ = x(3) ;
+
+%Determining the concentration of H+ and OH-
+H = 10.^-pH ;
+pKw = 14 ;
+Kw = 10.^-pKw ;
+OH = Kw./H ;
+Ka1 = 10^(-9.54) ;
+Ka2 = 10^(-13.09) ;
+Kar = 10^(-6.8) ;
+EQ2SQ = -0.0789 ;
+ESQQ = 0.1437;
+
+%setting the constraints on parameters
+Q = 10.^-pQ ;
+SQ = Q.*10.^((ESQQ-E)/0.059) ;
+HSQ = (SQ.*H)./Kar ;
+Q2 = SQ.*10.^((EQ2SQ-E)/0.059) ;
+HQ = (H.*Q2)./Ka2 ;
+H2Q = HQ.*H./Ka1 ;
+
+%Writing out the 3 balance equations to solve for.
+%charge balance, note, to do an acidic calcaultion, make the last term -ve.
+%For base, make it +ve.
+F = [(H - OH - SQ - HQ - 2.*Q2 - (C*V)./(V0+V));
+    
+    %Concentration balance for Q like moeities
+    (H2Q + HQ + Q2 + HSQ + SQ + Q - (V0.*(CH2Q0+CQ0))./(V0+V)  );
+    
+    %electron balance
+    (H2Q + HQ + Q2 - Q - (V0.*(CH2Q0-CQ0))./(V0+V) )  ] ;
+
+%Converting results to log
+logOH = -log10(OH) ;
+logQ = -log10(Q) ;
+logQ2 = -log10(Q2) ;
+logHQ = -log10(HQ) ;
+logSQ = -log10(SQ) ;
+logH2Q = -log10(H2Q) ;
+logHSQ = -log10(HSQ) ;
